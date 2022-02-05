@@ -1,0 +1,517 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "API used to integrate SugarFunge with ETH",
+    "version": "0.0.1",
+    "title": "SugarFunge Integration API"
+  },
+  "externalDocs": {
+    "description": "Source code",
+    "url": "https://github.com/SugarFunge/sugarfunge-integration"
+  },
+  "host": "localhost:8000",
+  "tags": [
+    {
+      "name": "contract",
+      "description": "ETH contract method interaction",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://github.com/SugarFunge/sugarfunge-integration"
+      }
+    },
+    {
+      "name": "moralis",
+      "description": "Moralis Web3 NFT API interaction",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://github.com/nft-api/nft-api"
+      }
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/mint_nft": {
+      "post": {
+        "tags": [
+          "contract"
+        ],
+        "summary": "Mint an NFT",
+        "operationId": "mintNFT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/MintNft"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when Minting an NFT"
+          }
+        }
+      }
+    },
+    "/transfer_nft": {
+      "post": {
+        "tags": [
+          "contract"
+        ],
+        "summary": "Transfer an NFT",
+        "operationId": "transferNFT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TransferNft"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when Minting an NFT"
+          }
+        }
+      }
+    },
+    "/get_nfts": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets all NFTs from the current user or address",
+        "operationId": "getNfts",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Address"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    },
+    "/get_contract_nfts": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets the NFT count for the specified contract and the NFTs belonging to the given address for the specified contract",
+        "operationId": "getContractNfts",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AccountToken"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    },
+    "/get_nft_transfers": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets the NFT transfers",
+        "operationId": "getNftTransfers",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Address"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    },
+    "/get_nft_transfers_by_block": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets NFT transfers by block number",
+        "operationId": "getNftTransfersByBlock",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BlockNumber"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    },
+    "/get_all_token_ids": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets the NFTs and NFTs metadata for a given token contract address",
+        "description": "Gets an object with a number of NFTs and an array with NFT metadata (where available) for a given token contract address",
+        "operationId": "getAllTokenIds",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TokenAddress"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    },
+    "/get_contract_nft_transfers": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets the number of NFT transfers and the NFTs transfers for a given token contract address",
+        "operationId": "getContractNftTransfers",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TokenAddress"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    },
+    "/get_nft_metadata": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets the contract level metadata for the given contract",
+        "operationId": "getNftMetadata",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TokenAddress"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    },
+    "/get_nft_owners": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets the number of NFT owners and the NFTs metadata for a given token contract address",
+        "operationId": "getNftOwners",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TokenAddress"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    },
+    "/get_token_id_metadata": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets data, including metadata (where available), for the given token id of the given contract address",
+        "operationId": "getTokenIdMetadata",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TokenId"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    },
+    "/get_token_id_owners": {
+      "post": {
+        "tags": [
+          "moralis"
+        ],
+        "summary": "Gets the number of NFT owners and the NFTs metadata for the given token id of the given contract address",
+        "operationId": "getTokenIdOwners",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TokenId"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when interacting with the Moralis API"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "MintNft": {
+      "type": "object",
+      "required": [
+        "account",
+        "amount",
+        "id",
+        "data"
+      ],
+      "properties": {
+        "account": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "xml": {
+        "name": "MintNft"
+      }
+    },
+    "TransferNft": {
+      "type": "object",
+      "required": [
+        "from",
+        "to",
+        "amount",
+        "id",
+        "data"
+      ],
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "xml": {
+        "name": "TransferNft"
+      }
+    },
+    "Address": {
+      "type": "object",
+      "required": [
+        "address"
+      ],
+      "properties": {
+        "address": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "Address"
+      }
+    },
+    "TokenAddress": {
+      "type": "object",
+      "required": [
+        "token_address"
+      ],
+      "properties": {
+        "token_address": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "TokenAddress"
+      }
+    },
+    "AccountToken": {
+      "type": "object",
+      "required": [
+        "address",
+        "token_address"
+      ],
+      "properties": {
+        "token_address": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "AccountToken"
+      }
+    },
+    "TokenId": {
+      "type": "object",
+      "required": [
+        "token_address",
+        "id"
+      ],
+      "properties": {
+        "token_address": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "xml": {
+        "name": "TokenId"
+      }
+    },
+    "BlockNumber": {
+      "type": "object",
+      "required": [
+        "block"
+      ],
+      "properties": {
+        "block": {
+          "type": "integer",
+          "format": "int64"
+        }
+      },
+      "xml": {
+        "name": "BlockNumber"
+      }
+    }
+  }
+}

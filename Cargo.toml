@@ -1,0 +1,28 @@
+[package]
+name = "sugarfunge-integration"
+version = "0.0.0"
+publish = false
+authors = ["Antonio Garcia <algc1294@gmail.com>", "Alex Rozgo <alex.rozgo@gmail.com>"]
+edition = "2021"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# actix-web = "3"
+actix-web = "4.0.0-beta.21"
+actix-cors = "0.6.0-beta.8"
+actix-web-prom = "0.6.0-beta.6"
+awc = {version = "3.0.0-beta.19", features = ["openssl"]}
+serde = { version = "1.0", features = ["rc", "derive"] }
+serde_json = "1"
+dotenv = "0.15.0"
+snailquote = "0.3.1"
+derive_more = "0.99.17"
+env_logger = "0.8"
+log = "0.4"
+ethcontract = { version = "0.15.4" }
+rustc-hex = "2.1.0"
+
+[build-dependencies]
+ethcontract-generate = { version = "0.15.4" }
