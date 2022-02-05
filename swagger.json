@@ -20,6 +20,14 @@
       }
     },
     {
+      "name": "wrapper",
+      "description": "Wrap ERC1155 Token as ERC20",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "https://github.com/gnosis/1155-to-20"
+      }
+    },
+    {
       "name": "moralis",
       "description": "Moralis Web3 NFT API interaction",
       "externalDocs": {
@@ -87,7 +95,127 @@
         ],
         "responses": {
           "500": {
-            "description": "Internal error when Minting an NFT"
+            "description": "Internal error when Transfering an NFT"
+          }
+        }
+      }
+    },
+    "/batch_transfer_nft": {
+      "post": {
+        "tags": [
+          "contract"
+        ],
+        "summary": "Transfer multiple NFTs",
+        "operationId": "batchTransferNFT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchTransferNft"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when Transfering the NFTs"
+          }
+        }
+      }
+    },
+    "/wrap_1155": {
+      "post": {
+        "tags": [
+          "wrapper"
+        ],
+        "summary": "Wrap an NFT",
+        "operationId": "wrap1155",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/WrapNft"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when wrapping an NFT"
+          }
+        }
+      }
+    },
+    "/unwrap_1155": {
+      "post": {
+        "tags": [
+          "wrapper"
+        ],
+        "summary": "Unwrap an NFT",
+        "operationId": "unwrap1155",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UnwrapNft"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when unwrapping an NFT"
+          }
+        }
+      }
+    },
+    "/batch_wrap_1155": {
+      "post": {
+        "tags": [
+          "wrapper"
+        ],
+        "summary": "Wrap multiple NFTs",
+        "operationId": "batchWrapNFT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BatchWrapNft"
+            }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Internal error when wrapping mulltiple NFTs"
           }
         }
       }
@@ -422,15 +550,200 @@
           "format": "int64"
         },
         "data": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int64"
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "symbol": {
+              "type": "string"
+            },
+            "decimals": {
+              "type": "integer"
+            }
           }
         }
       },
       "xml": {
         "name": "TransferNft"
+      }
+    },
+    "BatchTransferNft": {
+      "type": "object",
+      "required": [
+        "from",
+        "to",
+        "amounts",
+        "ids",
+        "data"
+      ],
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "amounts": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "symbol": {
+                "type": "string"
+              },
+              "decimals": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "BatchTransferNft"
+      }
+    },
+    "WrapNft": {
+      "type": "object",
+      "required": [
+        "from",
+        "amount",
+        "id",
+        "data"
+      ],
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "symbol": {
+              "type": "string"
+            },
+            "decimals": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "WrapNft"
+      }
+    },
+    "UnwrapNft": {
+      "type": "object",
+      "required": [
+        "id",
+        "amount",
+        "recipient_address",
+        "data"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "recipient_address": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "symbol": {
+              "type": "string"
+            },
+            "decimals": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "UnwrapNft"
+      }
+    },
+    "BatchWrapNft": {
+      "type": "object",
+      "required": [
+        "from",
+        "amounts",
+        "ids",
+        "data"
+      ],
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "amounts": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "symbol": {
+                "type": "string"
+              },
+              "decimals": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      },
+      "xml": {
+        "name": "BatchWrapNft"
       }
     },
     "Address": {
