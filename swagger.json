@@ -493,6 +493,28 @@
     }
   },
   "definitions": {
+    "TransferData": {
+      "type": "object",
+      "required": [
+        "name",
+        "symbol",
+        "decimals"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer"
+        }
+      },
+      "xml": {
+        "name": "TransferData"
+      }
+    },
     "MintNft": {
       "type": "object",
       "required": [
@@ -514,11 +536,7 @@
           "format": "int64"
         },
         "data": {
-          "type": "array",
-          "items": {
-            "type": "integer",
-            "format": "int64"
-          }
+          "$ref": "#/definitions/TransferData"
         }
       },
       "xml": {
@@ -550,18 +568,7 @@
           "format": "int64"
         },
         "data": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "symbol": {
-              "type": "string"
-            },
-            "decimals": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/definitions/TransferData"
         }
       },
       "xml": {
@@ -601,18 +608,7 @@
         "data": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "symbol": {
-                "type": "string"
-              },
-              "decimals": {
-                "type": "integer"
-              }
-            }
+            "$ref": "#/definitions/TransferData"
           }
         }
       },
@@ -641,18 +637,7 @@
           "format": "int64"
         },
         "data": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "symbol": {
-              "type": "string"
-            },
-            "decimals": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/definitions/TransferData"
         }
       },
       "xml": {
@@ -680,18 +665,7 @@
           "type": "string"
         },
         "data": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            },
-            "symbol": {
-              "type": "string"
-            },
-            "decimals": {
-              "type": "integer"
-            }
-          }
+          "$ref": "#/definitions/TransferData"
         }
       },
       "xml": {
@@ -727,23 +701,32 @@
         "data": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "symbol": {
-                "type": "string"
-              },
-              "decimals": {
-                "type": "integer"
-              }
-            }
+            "$ref": "#/definitions/TransferData"
           }
         }
       },
       "xml": {
         "name": "BatchWrapNft"
+      }
+    },
+    "MoralisParams": {
+      "type": "object",
+      "properties": {
+        "chain": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "offset": {
+          "type": "integer"
+        },
+        "limit": {
+          "type": "integer"
+        }
+      },
+      "xml": {
+        "name": "MoralisParams"
       }
     },
     "Address": {
@@ -754,6 +737,9 @@
       "properties": {
         "address": {
           "type": "string"
+        },
+        "options": {
+          "$ref": "#/definitions/MoralisParams"
         }
       },
       "xml": {
@@ -768,6 +754,9 @@
       "properties": {
         "token_address": {
           "type": "string"
+        },
+        "options": {
+          "$ref": "#/definitions/MoralisParams"
         }
       },
       "xml": {
@@ -786,6 +775,9 @@
         },
         "address": {
           "type": "string"
+        },
+        "options": {
+          "$ref": "#/definitions/MoralisParams"
         }
       },
       "xml": {
@@ -805,6 +797,9 @@
         "id": {
           "type": "integer",
           "format": "int64"
+        },
+        "options": {
+          "$ref": "#/definitions/MoralisParams"
         }
       },
       "xml": {
@@ -820,6 +815,9 @@
         "block": {
           "type": "integer",
           "format": "int64"
+        },
+        "options": {
+          "$ref": "#/definitions/MoralisParams"
         }
       },
       "xml": {

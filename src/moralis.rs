@@ -7,45 +7,69 @@ use snailquote::unescape;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Address {
-    address: String
+    address: String,
+    options: QueryParams
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Token {
-    token_address: String
+    token_address: String,
+    options: QueryParams
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct AccountToken {
     address: String,
-    token_address: String
+    token_address: String,
+    options: QueryParams
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct TokenId {
     token_address: String,
-    id: u64
+    id: u64,
+    options: QueryParams
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 struct BlockNumber {
-    block: u64
+    block: u64,
+    options: QueryParams
 }
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
-struct QueryParams {
-    chain: String,
-    format: String
+pub struct QueryParams {
+    chain: Option<String>,
+    format: Option<String>,
+    offset: Option<u64>,
+    limit: Option<u64>
 }
 
-pub async fn moralis_call(config: &Config, url: &String) -> Result<impl Responder, ApiError> {
+pub fn check_query_params(params: &QueryParams) -> QueryParams {
+
+    QueryParams {
+        chain: match &params.chain {
+            Some(chain) => Some(chain.to_string()),
+            None => Some("ropsten".to_string()),
+        },
+        format: match &params.format {
+            Some(format) => Some(format.to_string()),
+            None => Some("decimal".to_string()),
+        },
+        offset: match &params.offset {
+            Some(offset) => Some(*offset),
+            None => Some(0),
+        },
+        limit: match &params.limit {
+            Some(limit) => Some(*limit),
+            None => Some(10),
+        },
+    }
+}
+
+pub async fn moralis_call(config: &Config, url: &String, params: QueryParams) -> Result<impl Responder, ApiError> {
 
     let awc_client = awc::Client::new();
-
-    let params = QueryParams {
-        chain: "ropsten".to_string(),
-        format: "decimal".to_string(), 
-    };
 
     let response = 
         awc_client.get(url)
@@ -77,7 +101,7 @@ async fn get_nfts(req_body: String, config: Data<Config>) -> Result<impl Respond
 
     let url: String = config.moralis_base_url.to_owned() + &unescape(&req_data.address).unwrap() + "/nft";
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
 
 #[post("get_contract_nfts")]
@@ -86,7 +110,7 @@ async fn get_contract_nfts(req_body: String, config: Data<Config>) -> Result<imp
 
     let url: String = config.moralis_base_url.to_owned() + &unescape(&req_data.address).unwrap() + "/nft/" + &unescape(&req_data.token_address).unwrap();
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
 
 #[post("get_nft_transfers")]
@@ -95,7 +119,7 @@ async fn get_nft_transfers(req_body: String, config: Data<Config>) -> Result<imp
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.address).unwrap() + "/transfers";
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
 
 #[post("get_nft_transfers_by_block")]
@@ -104,7 +128,7 @@ async fn get_nft_transfers_by_block(req_body: String, config: Data<Config>) -> R
 
     let url: String = config.moralis_base_url.to_owned() + "block/" + &req_data.block.to_string() + "/nft/transfers";
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
 
 #[post("get_all_token_ids")]
@@ -113,7 +137,7 @@ async fn get_all_token_ids(req_body: String, config: Data<Config>) -> Result<imp
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap();
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
 
 #[post("get_contract_nft_transfers")]
@@ -122,7 +146,7 @@ async fn get_contract_nft_transfers(req_body: String, config: Data<Config>) -> R
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/transfers";
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
 
 #[post("get_nft_metadata")]
@@ -131,7 +155,7 @@ async fn get_nft_metadata(req_body: String, config: Data<Config>) -> Result<impl
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/metadata";
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
 
 #[post("get_nft_owners")]
@@ -140,7 +164,7 @@ async fn get_nft_owners(req_body: String, config: Data<Config>) -> Result<impl R
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/owners";
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
 
 #[post("get_token_id_metadata")]
@@ -149,7 +173,7 @@ async fn get_token_id_metadata(req_body: String, config: Data<Config>) -> Result
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/" + &req_data.id.to_string() ;
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
 
 #[post("get_token_id_owners")]
@@ -158,5 +182,5 @@ async fn get_token_id_owners(req_body: String, config: Data<Config>) -> Result<i
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/" + &req_data.id.to_string() + "/owners";
 
-    moralis_call(&config, &url).await
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }
