@@ -130,40 +130,28 @@ pub async fn wrapper_get_wrapped(config: &Config, wrapped: &GetWrapped1155) -> R
 
 #[post("wrap_1155")]
 async fn wrap_1155(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: Wrap1155 = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: Wrap1155 = serde_json::from_str(&req_body)?;
 
     wrapper_wrap(&config, req_data).await
 }
 
 #[post("batch_wrap_1155")]
 async fn batch_wrap_1155(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: BatchWrap1155 = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: BatchWrap1155 = serde_json::from_str(&req_body)?;
 
     wrapper_batch_wrap(&config, req_data).await
 }
 
 #[post("unwrap_1155")]
 async fn unwrap_1155(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: Unwrap1155 = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: Unwrap1155 = serde_json::from_str(&req_body)?;
 
     wrapper_unwrap(&config, &req_data).await
 }
 
 #[post("get_wrapped_1155")]
 async fn get_wrapped_1155(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: GetWrapped1155 = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: GetWrapped1155 = serde_json::from_str(&req_body)?;
 
     wrapper_get_wrapped(&config, &req_data).await
 }

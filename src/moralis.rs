@@ -73,10 +73,7 @@ pub async fn moralis_call(config: &Config, url: &String) -> Result<impl Responde
 
 #[post("get_nfts")]
 async fn get_nfts(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: Address = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: Address = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + &unescape(&req_data.address).unwrap() + "/nft";
 
@@ -85,10 +82,7 @@ async fn get_nfts(req_body: String, config: Data<Config>) -> Result<impl Respond
 
 #[post("get_contract_nfts")]
 async fn get_contract_nfts(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: AccountToken = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: AccountToken = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + &unescape(&req_data.address).unwrap() + "/nft/" + &unescape(&req_data.token_address).unwrap();
 
@@ -97,10 +91,7 @@ async fn get_contract_nfts(req_body: String, config: Data<Config>) -> Result<imp
 
 #[post("get_nft_transfers")]
 async fn get_nft_transfers(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: Address = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: Address = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.address).unwrap() + "/transfers";
 
@@ -109,10 +100,7 @@ async fn get_nft_transfers(req_body: String, config: Data<Config>) -> Result<imp
 
 #[post("get_nft_transfers_by_block")]
 async fn get_nft_transfers_by_block(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: BlockNumber = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: BlockNumber = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + "block/" + &req_data.block.to_string() + "/nft/transfers";
 
@@ -121,10 +109,7 @@ async fn get_nft_transfers_by_block(req_body: String, config: Data<Config>) -> R
 
 #[post("get_all_token_ids")]
 async fn get_all_token_ids(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: Token = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: Token = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap();
 
@@ -133,10 +118,7 @@ async fn get_all_token_ids(req_body: String, config: Data<Config>) -> Result<imp
 
 #[post("get_contract_nft_transfers")]
 async fn get_contract_nft_transfers(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: Token = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: Token = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/transfers";
 
@@ -145,10 +127,7 @@ async fn get_contract_nft_transfers(req_body: String, config: Data<Config>) -> R
 
 #[post("get_nft_metadata")]
 async fn get_nft_metadata(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: Token = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: Token = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/metadata";
 
@@ -157,10 +136,7 @@ async fn get_nft_metadata(req_body: String, config: Data<Config>) -> Result<impl
 
 #[post("get_nft_owners")]
 async fn get_nft_owners(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: Token = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: Token = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/owners";
 
@@ -169,10 +145,7 @@ async fn get_nft_owners(req_body: String, config: Data<Config>) -> Result<impl R
 
 #[post("get_token_id_metadata")]
 async fn get_token_id_metadata(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: TokenId = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: TokenId = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/" + &req_data.id.to_string() ;
 
@@ -181,10 +154,7 @@ async fn get_token_id_metadata(req_body: String, config: Data<Config>) -> Result
 
 #[post("get_token_id_owners")]
 async fn get_token_id_owners(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: TokenId = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: TokenId = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/" + &req_data.id.to_string() + "/owners";
 

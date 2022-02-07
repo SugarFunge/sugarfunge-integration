@@ -181,30 +181,21 @@ pub async fn asset_batch_transfer_nft(config: &Config, transfer: &AssetBatchTran
 
 #[post("mint_nft")]
 async fn mint_nft(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: AssetMint = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: AssetMint = serde_json::from_str(&req_body)?;
 
     asset_mint_nft(&config, &req_data).await
 }
 
 #[post("transfer_nft")]
 async fn transfer_nft(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: AssetTransfer = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: AssetTransfer = serde_json::from_str(&req_body)?;
 
     asset_transfer_nft(&config, &req_data).await
 }
 
 #[post("batch_transfer_nft")]
 async fn batch_transfer_nft(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
-    let req_data: AssetBatchTransfer = match serde_json::from_str(&req_body) {
-        Ok(body) => body,
-        Err(_) => return Err(ApiError::InvalidRequest)
-    };
+    let req_data: AssetBatchTransfer = serde_json::from_str(&req_body)?;
 
     asset_batch_transfer_nft(&config, &req_data).await
 }

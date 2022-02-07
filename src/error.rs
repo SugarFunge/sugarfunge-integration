@@ -6,7 +6,7 @@ use serde::Serialize;
 #[derive(Debug, Error)] 
 pub enum ApiError {
     MoralisError,
-    InvalidRequest,
+    SerdeError(serde_json::Error),
     ContractError(DeployError),
     MethodError(MethodError),
     TransportError
@@ -16,7 +16,7 @@ impl std::fmt::Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::MoralisError => write!(f, "Moralis API data fetch failed"),
-            Self::InvalidRequest => write!(f, "Invalid request"),
+            Self::SerdeError(error) => write!(f, "Error when parsing JSON: {}", error.to_string()),
             Self::ContractError(error) => write!(f, "Locating deployed contract failed: {}", error.to_string()),
             Self::MethodError(error) => write!(f, "Contract method failed: {}", error.to_string()),
             Self::TransportError => write!(f, "Create transport failed")
@@ -27,8 +27,8 @@ impl std::fmt::Display for ApiError {
 impl ApiError {
     pub fn name(&self) -> String {
         match self {
-            Self::MoralisError => "Unknown".to_string(),
-            Self::InvalidRequest => "InvalidRequest".to_string(),
+            Self::MoralisError => "MoralisError".to_string(),
+            Self::SerdeError(_) => "SerdeError".to_string(),
             Self::ContractError(_) => "ContractError".to_string(),
             Self::MethodError(_) => "MethodError".to_string(),
             Self::TransportError => "TransportError".to_string()
@@ -39,7 +39,7 @@ impl ResponseError for ApiError {
     fn status_code(&self) -> StatusCode {
         match &*self {
             Self::MoralisError => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::InvalidRequest => StatusCode::BAD_REQUEST,
+            Self::SerdeError(_) => StatusCode::BAD_REQUEST,
             Self::ContractError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::MethodError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::TransportError => StatusCode::INTERNAL_SERVER_ERROR,
@@ -66,6 +66,12 @@ impl From<DeployError> for ApiError {
 impl From<MethodError> for ApiError {
     fn from(error: MethodError) -> Self {
         ApiError::MethodError(error)
+    }
+}
+
+impl From<serde_json::Error> for ApiError {
+    fn from(error: serde_json::Error) -> Self {
+        ApiError::SerdeError(error)
     }
 }
 
