@@ -1936,7 +1936,6 @@ dependencies = [
  "ethcontract",
  "ethcontract-generate",
  "log",
- "rustc-hex",
  "serde",
  "serde_json",
  "snailquote",

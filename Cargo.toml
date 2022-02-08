@@ -22,7 +22,6 @@ derive_more = "0.99.17"
 env_logger = "0.8"
 log = "0.4"
 ethcontract = { version = "0.15.4" }
-rustc-hex = "2.1.0"
 
 [build-dependencies]
 ethcontract-generate = { version = "0.15.4" }

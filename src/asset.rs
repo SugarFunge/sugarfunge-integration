@@ -4,7 +4,6 @@ use ethcontract::{prelude::*, web3::ethabi::{Token, encode}};
 use actix_web::{post, web::{Data, Json}, Responder};
 use serde::{Serialize, Deserialize};
 use serde_json::json;
-use rustc_hex::ToHex;
 
 include!(concat!(env!("OUT_DIR"), "/SugarFungeAsset.rs"));
 
@@ -53,17 +52,6 @@ pub fn get_web3(config: &Config) -> Result<Web3<Http>, ApiError> {
     }
 }
 
-pub fn calculate_bytes_32(value: String) -> String {
-
-    let string_as_hex: String = value.as_bytes().to_hex();
-    let string_length = string_as_hex.len();
-    let zero_padding = 62 - string_length;
-    let string_zero_padding = "0".repeat(zero_padding);
-    let string_length_as_hex = format!("{:x}", string_length);
-
-    format!("{}{}{}", string_as_hex, string_zero_padding, string_length_as_hex)
-}
-
 pub fn get_asset_data(name: String, symbol: String, decimals: u64) -> Bytes<Vec<u8>> {
 
     ethcontract::Bytes(encode(
@@ -81,22 +69,21 @@ pub fn get_asset_data(name: String, symbol: String, decimals: u64) -> Bytes<Vec<
 
 pub fn get_batch_asset_data(data: Vec<AssetData>) -> Bytes<Vec<u8>> {
 
-    let mut batch_vec: Vec<String> = [].to_vec();
+    let mut tokens: Vec<Token> = [].to_vec();
 
     for asset in data {
-        batch_vec.push(
-            format!("{}{}{:x}", 
-                calculate_bytes_32(asset.name), 
-                calculate_bytes_32(asset.symbol), 
-                asset.decimals
-            )
-        );
+        let token = Token::Tuple(
+            [
+                Token::String(asset.name.to_string()), 
+                Token::String(asset.symbol.to_string()), 
+                Token::Uint(asset.decimals.into())
+            ]
+            .to_vec());
+
+        tokens.push(token);
     }
 
-    let batch_string = format!("0x{}", batch_vec.join(""));
-    let batch_data = batch_string.into_bytes();
-
-    ethcontract::Bytes(batch_data)
+    ethcontract::Bytes(encode(&tokens))
 }
 
 pub async fn asset_mint_nft(config: &Config, mint: &AssetMint) -> Result<impl Responder, ApiError> {
