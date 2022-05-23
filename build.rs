@@ -8,7 +8,7 @@ fn main() {
         let dest = std::path::Path::new(&out_dir).join("SugarFungeAsset.rs");
 
         let artifact = TruffleLoader::new()
-            .load_from_file("./contracts/SugarFunge/SugarFungeAsset.json")
+            .load_from_file("./contracts/SugarFungeAsset.json")
             .unwrap();
 
         for contract in artifact.iter() {
@@ -24,7 +24,7 @@ fn main() {
         let dest = std::path::Path::new(&out_dir).join("Wrapped1155Factory.rs");
 
         let artifact = TruffleLoader::new()
-            .load_from_file("./contracts/ErcWrapper/Wrapped1155Factory.json")
+            .load_from_file("./contracts/Wrapped1155Factory.json")
             .unwrap();
 
         for contract in artifact.iter() {

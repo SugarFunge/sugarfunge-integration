@@ -6,15 +6,15 @@ use log::error;
 use snailquote::unescape;
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Address {
-    address: String,
-    options: QueryParams
+pub struct Address {
+    pub address: String,
+    pub options: QueryParams
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Token {
-    token_address: String,
-    options: QueryParams
+pub struct Token {
+    pub token_address: String,
+    pub options: QueryParams
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -22,6 +22,11 @@ struct AccountToken {
     address: String,
     token_address: String,
     options: QueryParams
+}
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Transaction {
+    pub tx: String,
+    pub options: QueryParams
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -39,10 +44,10 @@ struct BlockNumber {
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct QueryParams {
-    chain: Option<String>,
-    format: Option<String>,
-    offset: Option<u64>,
-    limit: Option<u64>
+    pub chain: Option<String>,
+    pub format: Option<String>,
+    pub offset: Option<u64>,
+    pub limit: Option<u64>
 }
 
 pub fn check_query_params(params: &QueryParams) -> QueryParams {
@@ -50,7 +55,7 @@ pub fn check_query_params(params: &QueryParams) -> QueryParams {
     QueryParams {
         chain: match &params.chain {
             Some(chain) => Some(chain.to_string()),
-            None => Some("ropsten".to_string()),
+            None => Some("rinkeby".to_string()),
         },
         format: match &params.format {
             Some(format) => Some(format.to_string()),
@@ -181,6 +186,15 @@ async fn get_token_id_owners(req_body: String, config: Data<Config>) -> Result<i
     let req_data: TokenId = serde_json::from_str(&req_body)?;
 
     let url: String = config.moralis_base_url.to_owned() + "nft/" + &unescape(&req_data.token_address).unwrap() + "/" + &req_data.id.to_string() + "/owners";
+
+    moralis_call(&config, &url, check_query_params(&req_data.options)).await
+}
+
+#[post("get_transaction")]
+async fn get_transaction(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
+    let req_data: Transaction = serde_json::from_str(&req_body)?;
+
+    let url: String = config.moralis_base_url.to_owned() + "transaction/"+ &unescape(&req_data.tx).unwrap();
 
     moralis_call(&config, &url, check_query_params(&req_data.options)).await
 }

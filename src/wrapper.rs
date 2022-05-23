@@ -1,19 +1,30 @@
-use crate::{error::ApiError, config::Config, asset::{AssetData, AssetTransfer, get_web3, get_asset_data, asset_transfer_nft, AssetBatchTransfer, asset_batch_transfer_nft}};
-use std::{env, str::FromStr, fmt::Debug};
+use crate::{
+    asset::{
+        asset_batch_transfer_nft, asset_transfer_nft, get_asset_data, get_web3, AssetBatchTransfer,
+        AssetData, AssetTransfer,
+    },
+    config::Config,
+    error::ApiError,
+};
+use actix_web::{
+    post,
+    web::{Data, Json},
+    Responder,
+};
 use ethcontract::prelude::*;
-use actix_web::{post, web::{Data, Json}, Responder};
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::{env, fmt::Debug, str::FromStr};
 
 include!(concat!(env!("OUT_DIR"), "/SugarFungeAsset.rs"));
 include!(concat!(env!("OUT_DIR"), "/Wrapped1155Factory.rs"));
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Wrap1155 {
-    from: String,
-    amount: u64,
-    id: u64,
-    data: AssetData,
+    pub from: String,
+    pub amount: u64,
+    pub id: u64,
+    pub data: AssetData,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -32,14 +43,13 @@ pub struct GetWrapped1155 {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Unwrap1155 {
-    id: u64,
-    amount: u64,
-    recipient_address: String,
-    data: AssetData,
+    pub id: u64,
+    pub amount: u64,
+    pub recipient_address: String,
+    pub data: AssetData,
 }
 
 pub async fn wrapper_wrap(config: &Config, token: Wrap1155) -> Result<impl Responder, ApiError> {
-
     let web3 = get_web3(config)?;
 
     let factory_contract = Wrapped1155Factory::deployed(&web3).await?;
@@ -49,14 +59,16 @@ pub async fn wrapper_wrap(config: &Config, token: Wrap1155) -> Result<impl Respo
         to: format!("0x{:x}", Wrapped1155Factory::address(&factory_contract)),
         amount: token.amount,
         id: token.id,
-        data: token.data
+        data: token.data,
     };
 
     asset_transfer_nft(config, &transfer).await
 }
 
-pub async fn wrapper_batch_wrap(config: &Config, token: BatchWrap1155) -> Result<impl Responder, ApiError> {
-
+pub async fn wrapper_batch_wrap(
+    config: &Config,
+    token: BatchWrap1155,
+) -> Result<impl Responder, ApiError> {
     let web3 = get_web3(config)?;
 
     let factory_contract = Wrapped1155Factory::deployed(&web3).await?;
@@ -66,16 +78,18 @@ pub async fn wrapper_batch_wrap(config: &Config, token: BatchWrap1155) -> Result
         to: format!("0x{:x}", Wrapped1155Factory::address(&factory_contract)),
         amounts: token.amounts,
         ids: token.ids,
-        data: token.data
+        data: token.data,
     };
 
     asset_batch_transfer_nft(config, &transfer).await
 }
 
-pub async fn wrapper_unwrap(config: &Config, unwrap: &Unwrap1155) -> Result<impl Responder, ApiError> {
-
+pub async fn wrapper_unwrap(
+    config: &Config,
+    unwrap: &Unwrap1155,
+) -> Result<impl Responder, ApiError> {
     let account = {
-        let key: PrivateKey = config.private_key.to_owned();
+        let key: PrivateKey = config.signer_private_key.to_owned();
         Account::Offline(key, Some(config.chain_id))
     };
 
@@ -87,24 +101,39 @@ pub async fn wrapper_unwrap(config: &Config, unwrap: &Unwrap1155) -> Result<impl
 
     let sugarfunge_contract = SugarFungeAsset::deployed(&web3).await?;
 
-    let result = contract.unwrap(
-        H160::from_str(&format!("0x{:x}", SugarFungeAsset::address(&sugarfunge_contract))).unwrap(),
-        unwrap.id.into(), 
-        unwrap.amount.into(), 
-        H160::from_str(&unwrap.recipient_address).unwrap(), 
-        get_asset_data(unwrap.data.name.to_owned(), unwrap.data.symbol.to_owned(), unwrap.data.decimals))
+    let result = contract
+        .unwrap(
+            H160::from_str(&format!(
+                "0x{:x}",
+                SugarFungeAsset::address(&sugarfunge_contract)
+            ))
+            .unwrap(),
+            unwrap.id.into(),
+            unwrap.amount.into(),
+            H160::from_str(&unwrap.recipient_address).unwrap(),
+            get_asset_data(
+                unwrap.data.name.to_owned(),
+                unwrap.data.symbol.to_owned(),
+                unwrap.data.decimals,
+            ),
+        )
         .send()
         .await?;
 
     Ok(Json(json!({
-        "tx": format!("0x{:x}", result.hash())
+        "tx": format!("0x{:x}", result.hash()),
+        "to": &result.as_receipt().unwrap().to,
+        "from": &result.as_receipt().unwrap().from,
+        "hash": &result.hash()
     })))
 }
 
-pub async fn wrapper_get_wrapped(config: &Config, wrapped: &GetWrapped1155) -> Result<impl Responder, ApiError> {
-
+pub async fn wrapper_get_wrapped(
+    config: &Config,
+    wrapped: &GetWrapped1155,
+) -> Result<impl Responder, ApiError> {
     let account = {
-        let key: PrivateKey = config.private_key.to_owned();
+        let key: PrivateKey = config.signer_private_key.to_owned();
         Account::Offline(key, Some(config.chain_id))
     };
 
@@ -116,16 +145,24 @@ pub async fn wrapper_get_wrapped(config: &Config, wrapped: &GetWrapped1155) -> R
 
     let sugarfunge_contract = SugarFungeAsset::deployed(&web3).await?;
 
-    let result = contract.get_wrapped_1155(
-        H160::from_str(&format!("0x{:x}", SugarFungeAsset::address(&sugarfunge_contract))).unwrap(), 
-        wrapped.id.into(), 
-        get_asset_data(wrapped.data.name.to_owned(), wrapped.data.symbol.to_owned(), wrapped.data.decimals))
+    let result = contract
+        .get_wrapped_1155(
+            H160::from_str(&format!(
+                "0x{:x}",
+                SugarFungeAsset::address(&sugarfunge_contract)
+            ))
+            .unwrap(),
+            wrapped.id.into(),
+            get_asset_data(
+                wrapped.data.name.to_owned(),
+                wrapped.data.symbol.to_owned(),
+                wrapped.data.decimals,
+            ),
+        )
         .call()
         .await?;
 
-    Ok(Json(json!({
-        "tx": format!("0x{:x}", result)
-    })))
+    Ok(Json(json!({ "tx": format!("0x{:x}", result) })))
 }
 
 #[post("wrap_1155")]
@@ -136,7 +173,10 @@ async fn wrap_1155(req_body: String, config: Data<Config>) -> Result<impl Respon
 }
 
 #[post("batch_wrap_1155")]
-async fn batch_wrap_1155(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
+async fn batch_wrap_1155(
+    req_body: String,
+    config: Data<Config>,
+) -> Result<impl Responder, ApiError> {
     let req_data: BatchWrap1155 = serde_json::from_str(&req_body)?;
 
     wrapper_batch_wrap(&config, req_data).await
@@ -150,7 +190,10 @@ async fn unwrap_1155(req_body: String, config: Data<Config>) -> Result<impl Resp
 }
 
 #[post("get_wrapped_1155")]
-async fn get_wrapped_1155(req_body: String, config: Data<Config>) -> Result<impl Responder, ApiError> {
+async fn get_wrapped_1155(
+    req_body: String,
+    config: Data<Config>,
+) -> Result<impl Responder, ApiError> {
     let req_data: GetWrapped1155 = serde_json::from_str(&req_body)?;
 
     wrapper_get_wrapped(&config, &req_data).await
