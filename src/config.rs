@@ -10,7 +10,7 @@ pub struct Config {
     pub chain_id: u64,
     pub moralis_base_url: String,
     pub moralis_api_key: String,
-    pub testing_account: String,
+    pub testing_address: String,
 }
 
 pub fn init() -> Config {
@@ -45,7 +45,7 @@ pub fn init() -> Config {
             Ok(var) => var,
             Err(_) => panic!("MORALIS_API_KEY {}", panic_message),
         },
-        testing_account: match env::var("TESTING_ACCOUNT") {
+        testing_address: match env::var("TESTING_ADDRESS") {
             Ok(var) => var,
             Err(_) => "".to_string(),
         },

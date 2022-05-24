@@ -1,3 +1,4 @@
+mod utils;
 use crate::utils::{
     get_address_nfts, get_app, get_nft, print_success, setup_env_var, TransactionInfo,
 };
@@ -17,9 +18,6 @@ use sugarfunge_integration::{
     asset::{get_web3, AssetData, AssetMint, AssetTransfer},
     wrapper::{Unwrap1155, Wrap1155},
 };
-// using the testing utilities
-#[path = "../tests/utils/mod.rs"]
-mod utils;
 
 //Structs
 #[derive(Serialize, Deserialize, Debug)]
@@ -48,7 +46,7 @@ async fn test_1_asset_mint() {
     let mock_asset_id: u64 = rng.gen_range(0..10);
     let mock_amount: u64 = rng.gen_range(50..100);
 
-    //Mocking request data (INFURA)
+    //Constructing the mint request
     let req_data = AssetMint {
         account: mock_address.clone(),
         amount: mock_amount,
@@ -63,6 +61,7 @@ async fn test_1_asset_mint() {
     //Initializing testing app
     let mut app = get_app(&env).await;
 
+    //Fetching moralis to get address's tokens
     let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
 
     //Saving amount into a variable
@@ -86,17 +85,21 @@ async fn test_1_asset_mint() {
         .send_request(&mut app)
         .await;
     assert!(res.status().is_success(), "Failed to mint NFT");
+    //Parsing the response
     let response: ApiResponse = test::read_body_json(res).await;
 
+    //Initializing web3
     let web3 = get_web3(&env).unwrap();
+
     //Waiting at least 10 confirmations to fetch the data again
     wait_for_confirmation(&web3, response.hash, ConfirmParams::with_confirmations(10))
         .await
         .expect("Failed while waiting for blockchain confirmation");
 
-    //Fetching NFT amount after minting (MORALIS)
+    //RE-Fetching address's tokens
     let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
 
+    //Extracting amount from a specific token id
     let amount_after_mint: u64 = get_nft(moralis_response.clone(), Some(mock_asset_id))
         .amount
         .clone()
@@ -112,6 +115,8 @@ async fn test_1_asset_mint() {
     //Checking if the amount that user's hold is what it has plus the minted amount
     let expected_token_amount = amount_before_mint + mock_amount;
     assert_eq!(expected_token_amount, amount_after_mint);
+
+    //Print success message on terminal
     print_success("Mint NFT Test PASSED".to_string());
 }
 //Testing Transfer proccess
@@ -129,8 +134,9 @@ async fn test_2_asset_transfer() {
     info!("\n\n Testing Transfer proccess");
 
     //Mock Data
-    let mock_address = &env.signer_address;
-    let mock_second_address: String = String::from(&env.testing_account);
+    let mock_address = &env.signer_address; //From address
+    let mock_second_address: String = String::from(&env.testing_address); //To address
+    //Fetching moralis to get address's tokens
     let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
     let mock_asset_id: u64 = moralis_response
         .result
@@ -147,8 +153,10 @@ async fn test_2_asset_transfer() {
         .parse::<u64>()
         .unwrap();
 
+    //Random amount to transfer (from 1 to 20)
     let mock_amount: u64 = rng.gen_range(1..20);
 
+    //Constructing the transfer request
     let req_data = AssetTransfer {
         from: mock_address.clone(),
         to: mock_second_address.clone(),
@@ -175,15 +183,17 @@ async fn test_2_asset_transfer() {
         .send_request(&mut app)
         .await;
     assert!(res.status().is_success(), "Failed to transfer NFT");
+    //Parsing the response
     let response: ApiResponse = test::read_body_json(res).await;
 
+    //Initializing web3
     let web3 = get_web3(&env).unwrap();
     //Waiting at least 10 confirmations to fetch the data again
     wait_for_confirmation(&web3, response.hash, ConfirmParams::with_confirmations(10))
         .await
         .expect("Failed while waiting for blockchain confirmation");
 
-    //Fetching NFT amount before transfering (MORALIS)
+    //Fetching moralis to get address's tokens
     let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
 
     let amount_after_transfer: u64 = get_nft(moralis_response.clone(), Some(mock_asset_id))
@@ -202,6 +212,8 @@ async fn test_2_asset_transfer() {
     //Checking if the amount that user's hold is what it has minus the transferred amount
     let expected_token_amount = amount_before_transfer - mock_amount;
     assert_eq!(expected_token_amount, amount_after_transfer);
+    
+    //Print success message on terminal
     print_success("Transfer NFT Test PASSED".to_string());
 }
 
@@ -223,9 +235,13 @@ async fn test_3_asset_wrap() {
 
     //Mock Data
     let mock_address: String = env.signer_address.clone();
+
+    //Fetching moralis to get address's tokens
     let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
     let returned_nft = get_nft(moralis_response.clone(), None);
     let mock_asset_id: u64 = returned_nft.token_id.parse::<u64>().unwrap();
+    
+    //Saving amount into a variable
     let amount_before_wrap: u64 = returned_nft.amount.clone().parse::<u64>().unwrap();
     if amount_before_wrap == 0 {
         panic!("Address doesn't have a nft");
@@ -233,6 +249,7 @@ async fn test_3_asset_wrap() {
     let mock_amount: u64 = rng.gen_range(5..20);
 
     //Mocking request data (INFURA)
+    //Constructing the transfer request
     let req_data = Wrap1155 {
         from: mock_address.clone(),
         amount: mock_amount,
@@ -255,15 +272,18 @@ async fn test_3_asset_wrap() {
         .send_request(&mut app)
         .await;
     assert!(res.status().is_success(), "Failed to wrap NFT");
+    //Parsing the response
     let response: ApiResponse = test::read_body_json(res).await;
 
+    //Initializing web3
     let web3 = get_web3(&env).unwrap();
     //Waiting at least 10 confirmations to fetch the data again
     wait_for_confirmation(&web3, response.hash, ConfirmParams::with_confirmations(10))
         .await
         .expect("Failed while waiting for blockchain confirmation");
 
-    let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
+    //Fetching moralis to get address's tokens
+        let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
     let address_nft = get_nft(moralis_response.clone(), Some(mock_asset_id));
     let amount_after_wrap: u64 = address_nft.amount.clone().parse::<u64>().unwrap();
     info!(
@@ -275,6 +295,8 @@ async fn test_3_asset_wrap() {
     //Checking if the amount that user's hold is what it has plus the minted amount
     let expected_token_amount = amount_before_wrap - mock_amount;
     assert_eq!(expected_token_amount, amount_after_wrap);
+    
+    //Print success message on terminal
     print_success("Wrap Test PASSED".to_string());
 }
 //Testing Unwrapper proccess
@@ -293,9 +315,11 @@ async fn test_4_asset_unwrap() {
 
     //Mock Data
     let mock_address: String = env.signer_address.clone();
+    //Fetching moralis to get address's tokens
     let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
     let returned_nft = get_nft(moralis_response.clone(), None);
     let mock_asset_id: u64 = returned_nft.token_id.parse::<u64>().unwrap();
+    //Saving amount into a variable
     let amount_before_unwrap: u64 = returned_nft.amount.clone().parse::<u64>().unwrap();
     if amount_before_unwrap == 0 {
         panic!("Address doesn't have a nft");
@@ -303,6 +327,7 @@ async fn test_4_asset_unwrap() {
     let mock_amount: u64 = rng.gen_range(1..5);
 
     //Mocking request data (INFURA)
+    //Constructing the transfer request
     let req_data = Unwrap1155 {
         recipient_address: mock_address.clone(),
         amount: mock_amount,
@@ -325,15 +350,18 @@ async fn test_4_asset_unwrap() {
         .send_request(&mut app)
         .await;
     assert!(res.status().is_success(), "Failed to unwrap NFT");
+    //Parsing the response
     let response: ApiResponse = test::read_body_json(res).await;
 
+    //Initializing web3
     let web3 = get_web3(&env).unwrap();
     //Waiting at least 10 confirmations to fetch the data again
     wait_for_confirmation(&web3, response.hash, ConfirmParams::with_confirmations(10))
         .await
         .expect("Failed while waiting for blockchain confirmation");
 
-    let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
+    //Fetching moralis to get address's tokens
+        let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
     let address_nft = get_nft(moralis_response.clone(), Some(mock_asset_id));
     let amount_after_unwrap: u64 = address_nft.amount.clone().parse::<u64>().unwrap();
     info!(
@@ -345,5 +373,7 @@ async fn test_4_asset_unwrap() {
     //Checking if the amount that user's hold is what it has plus the unwrapped amount
     let expected_token_amount = amount_before_unwrap + mock_amount;
     assert_eq!(expected_token_amount, amount_after_unwrap);
+    
+    //Print success message on terminal
     print_success("Unwrap Test PASSED".to_string());
 }
