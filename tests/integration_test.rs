@@ -30,7 +30,7 @@ pub struct ApiResponse {
 
 //ASSET
 
-//Testing Mint proccess
+//Testing Mint process
 #[actix_web::test]
 async fn test_1_asset_mint() {
     //Setup Env variables
@@ -39,7 +39,7 @@ async fn test_1_asset_mint() {
     //Initialize rng to get random mock data
     let mut rng = rand::thread_rng();
 
-    info!("\n\n Testing Mint proccess");
+    info!("\n\n Testing Mint process");
 
     //Mock Data
     let mock_address: String = env.signer_address.clone();
@@ -113,13 +113,13 @@ async fn test_1_asset_mint() {
     //Checking if the from address is the same as the transaction from address
     assert_eq!(&response.from.to_lowercase(), &mock_address.to_lowercase());
     //Checking if the amount that user's hold is what it has plus the minted amount
-    let expected_token_amount = amount_before_mint + mock_amount;
+    let expected_token_amount = amount_before_mint.checked_add(mock_amount).unwrap();
     assert_eq!(expected_token_amount, amount_after_mint);
 
     //Print success message on terminal
     print_success("Mint NFT Test PASSED".to_string());
 }
-//Testing Transfer proccess
+//Testing Transfer process
 #[actix_web::test]
 async fn test_2_asset_transfer() {
     //Setup Env variables
@@ -131,7 +131,7 @@ async fn test_2_asset_transfer() {
     //Initializing testing app
     let mut app = get_app(&env).await;
 
-    info!("\n\n Testing Transfer proccess");
+    info!("\n\n Testing Transfer process");
 
     //Mock Data
     let mock_address = &env.signer_address; //From address
@@ -170,7 +170,7 @@ async fn test_2_asset_transfer() {
     };
 
     info!(
-        "Amount of address asset before transfering -> {:?}",
+        "Amount of address asset before transferring -> {:?}",
         &amount_before_transfer
     );
 
@@ -210,7 +210,7 @@ async fn test_2_asset_transfer() {
     assert_eq!(&response.from.to_lowercase(), &mock_address.to_lowercase());
 
     //Checking if the amount that user's hold is what it has minus the transferred amount
-    let expected_token_amount = amount_before_transfer - mock_amount;
+    let expected_token_amount = amount_before_transfer.checked_sub(mock_amount).unwrap();
     assert_eq!(expected_token_amount, amount_after_transfer);
     
     //Print success message on terminal
@@ -219,7 +219,7 @@ async fn test_2_asset_transfer() {
 
 //WRAPPER
 
-//Testing Wrapper proccess
+//Testing Wrapper process
 #[actix_web::test]
 async fn test_3_asset_wrap() {
     //Setup Env variables
@@ -231,10 +231,10 @@ async fn test_3_asset_wrap() {
     //Initializing testing app
     let mut app = get_app(&env).await;
 
-    info!("\n\n Testing Wrapper proccess");
+    info!("\n\n Testing Wrapper process");
 
     //Mock Data
-    let mock_address: String = env.signer_address.clone();
+    let mock_address = &env.signer_address;
 
     //Fetching moralis to get address's tokens
     let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
@@ -293,13 +293,13 @@ async fn test_3_asset_wrap() {
     //Checking if the from address is the same as the transaction from address
     assert_eq!(&response.from.to_lowercase(), &mock_address.to_lowercase());
     //Checking if the amount that user's hold is what it has plus the minted amount
-    let expected_token_amount = amount_before_wrap - mock_amount;
+    let expected_token_amount =  amount_before_wrap.checked_sub(mock_amount).unwrap();
     assert_eq!(expected_token_amount, amount_after_wrap);
     
     //Print success message on terminal
     print_success("Wrap Test PASSED".to_string());
 }
-//Testing Unwrapper proccess
+//Testing Unwrapper process
 #[actix_web::test]
 async fn test_4_asset_unwrap() {
     //Setup Env variables
@@ -311,10 +311,10 @@ async fn test_4_asset_unwrap() {
     //Initializing testing app
     let mut app = get_app(&env).await;
 
-    info!("\n\n Testing Unwrapper proccess");
+    info!("\n\n Testing Unwrapper process");
 
     //Mock Data
-    let mock_address: String = env.signer_address.clone();
+    let mock_address = &env.signer_address;
     //Fetching moralis to get address's tokens
     let moralis_response: TransactionInfo = get_address_nfts(&app, &mock_address).await;
     let returned_nft = get_nft(moralis_response.clone(), None);
@@ -371,7 +371,7 @@ async fn test_4_asset_unwrap() {
     //Checking if the from address is the same as the transaction from address
     assert_eq!(&response.from.to_lowercase(), &mock_address.to_lowercase());
     //Checking if the amount that user's hold is what it has plus the unwrapped amount
-    let expected_token_amount = amount_before_unwrap + mock_amount;
+    let expected_token_amount = amount_before_unwrap.checked_add(mock_amount).unwrap();
     assert_eq!(expected_token_amount, amount_after_unwrap);
     
     //Print success message on terminal
