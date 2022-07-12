@@ -1,34 +1,28 @@
-mod config;
-mod error;
-mod asset;
-mod moralis;
-mod wrapper;
-
 use actix_cors::Cors;
-use asset::*;
-use moralis::*;
-use wrapper::*;
-use actix_web::{HttpServer, App, web::Data, http};
+use actix_web::{http, web::Data, App, HttpServer};
 use actix_web_prom::PrometheusMetricsBuilder;
-use serde::{Serialize, Deserialize};
 use dotenv::dotenv;
-
+use serde::{Deserialize, Serialize};
+use sugarfunge_integration::asset::*;
+use sugarfunge_integration::config;
+use sugarfunge_integration::moralis::*;
+use sugarfunge_integration::wrapper::*;
 #[derive(Serialize, Deserialize, Debug)]
 enum ContentType {
-    JSON
+    JSON,
 }
 
 impl ContentType {
+    #[warn(dead_code)]
     pub fn as_str(&self) -> &'static str {
         match *self {
-            ContentType::JSON => "application/json"
+            ContentType::JSON => "application/json",
         }
     }
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-
     dotenv().ok();
     env_logger::init();
 
@@ -41,7 +35,7 @@ async fn main() -> std::io::Result<()> {
 
     let url = env.listen_url.to_owned();
 
-    HttpServer::new( move || {
+    HttpServer::new(move || {
         let cors = Cors::default()
             .allowed_origin_fn(|origin, _req_head| {
                 origin.as_bytes().starts_with(b"http://localhost")
@@ -59,6 +53,7 @@ async fn main() -> std::io::Result<()> {
             .service(get_nfts)
             .service(get_contract_nfts)
             .service(get_nft_transfers)
+            .service(get_transaction)
             .service(get_nft_transfers_by_block)
             .service(get_all_token_ids)
             .service(get_contract_nft_transfers)
